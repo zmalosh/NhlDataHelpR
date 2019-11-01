@@ -3,12 +3,25 @@
 #' @return all teams from the NHL API
 #' @export
 #'
+#' @param includeRoster flag to enable rosters for each team
+#'
 #' @examples get_teams()
 #'
 
-get_teams <- function(){
+get_teams <- function(includeRoster = TRUE){
+	includeRoster = TRUE
 	require(dplyr)
+
+	expandParams <- c()
+	if(includeRoster){
+		expandParams <- c(expandParams, 'team.roster')
+	}
+
 	url <- 'https://statsapi.web.nhl.com/api/v1/teams'
+	if(length(expandParams) > 0){
+		url <- paste0(url, '?expand=', paste0(expandParams, collapse = ','))
+	}
+
 	teamsJson <- jsonlite::fromJSON(url)
 	rawTeams <- teamsJson$teams
 	teams <- tibble::tibble(
@@ -45,8 +58,24 @@ get_teams <- function(){
 
 	result <- list(
 		Teams = teams,
-		TimeZones = timeZones
+		TimeZones = timeZones,
+		Rosters = NULL
 	)
+
+	if(includeRoster){
+		z <- lapply(1:nrow(rawTeams), function(i){
+			roster <- rawTeams$roster$roster[i][[1]]
+			y <- tibble::tibble(
+				TeamId = rawTeams[i,]$id,
+				PlayerId = roster$person$id,
+				PlayerName = roster$person$fullName,
+				JerseyNumber = roster$jerseyNumber,
+				Position = roster$position$abbreviation,
+				PlayerApiLink = roster$person$link
+			)
+		})
+		result$Rosters <- do.call(rbind, z)
+	}
 
 	return(result)
 }
