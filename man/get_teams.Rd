@@ -4,7 +4,10 @@
 \alias{get_teams}
 \title{Title}
 \usage{
-get_teams()
+get_teams(includeRoster = TRUE)
+}
+\arguments{
+\item{includeRoster}{flag to enable rosters for each team}
 }
 \value{
 all teams from the NHL API
