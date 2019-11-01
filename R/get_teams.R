@@ -9,7 +9,6 @@
 #'
 
 get_teams <- function(includeRoster = TRUE){
-	includeRoster = TRUE
 	require(dplyr)
 
 	expandParams <- c()
