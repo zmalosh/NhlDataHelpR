@@ -3,12 +3,21 @@
 #' @return all teams from the NHL API
 #' @export
 #'
+#' @param teamId team ID as defined by NHL.com
+#'
 #' @examples get_teams()
 #'
 
-get_teams <- function(){
+get_team_by_id <- function(teamId){
+	if(is.null(teamId)){
+		stop('teamId must be provided')
+	}
+	if(!is.numeric(teamId)){
+		stop('teamId must be an integer')
+	}
+
 	require(dplyr)
-	url <- 'https://statsapi.web.nhl.com/api/v1/teams'
+	url <- paste0('https://statsapi.web.nhl.com/api/v1/teams/', teamId)
 	teamsJson <- jsonlite::fromJSON(url)
 	rawTeams <- teamsJson$teams
 	teams <- tibble::tibble(
